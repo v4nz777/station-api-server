@@ -1,0 +1,6 @@
+__pycache__/
+**/__pycache__/
+fernet.key
+.env
+env
+.pytest_cache
