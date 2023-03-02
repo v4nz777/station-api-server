@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Response
-from routers.users import users
+from routers.users import users,schema_users
+# from starlette_graphene3
 import os
 import utils
 import json
@@ -13,6 +14,8 @@ app.include_router(
     prefix='/users',
     tags=['users']
 )
+
+app.add_route("/graphql/users", schema_users.graphql_app)
 
 @app.get('/')
 async def root()-> Response:
