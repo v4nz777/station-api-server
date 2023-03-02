@@ -11,20 +11,26 @@ class User:
     password:str
     email:str
     _id:str
+    email:str|None
+    address:str|None
+    mobile:str|None
     
 
 @strawberry.input
 class UserCreationInput:
     username:str
     password:str
-    email:str
-    optional:str|None = None
+    email:str|None = None
+    address:str|None = None
+    mobile:str|None = None
     
     def jsonify(self)->dict:
         return {
             "username":self.username,
             "password":self.password,
             "email":self.email,
+            "address":self.address,
+            "mobile":self.mobile
         }
     
 
@@ -47,6 +53,7 @@ class Mutation:
     
     @strawberry.mutation 
     def update_user(self,info,username:str,update:str)-> User:
+        """When updating password, include both fields: `password` and `new_password`"""
         jsoned_update = json.loads(update)
         db = helpers.connect_to_database_collection_users()
 
