@@ -15,8 +15,11 @@ class MainDB:
         else:
             self.client: pymongo.MongoClient = pymongo.MongoClient(os.environ['DB_URL'])
         self.db: pymongo.database.Database = self.client.get_database()
-        
-        
+
+    def create_collection(self,name:str):
+        if name not in self.db.list_collection_names():
+            self.db.create_collection(name)
+
     def to_collection(self, collection:str)-> Any:
         self.collection: pymongo.collection.Collection = self.db.get_collection(collection)
         return self.collection
@@ -30,7 +33,6 @@ class MainDB:
     def read(self, query: Dict[str, Any],**kwargs) -> Dict[str, Any]:
         """add `exclude=[password,...yourfield]` to exclude fields"""
         exclude = kwargs.get('exclude',['_'])
-
         exempted = self.exempt_fields(exclude)
         result: pymongo.cursor.Cursor = self.collection.find_one(query,exempted)
         return dict(result)
@@ -39,7 +41,6 @@ class MainDB:
     def read_all(self,**kwargs) -> List[Dict[str, Any]]:
         """add `exclude=[password,...yourfield]` to exclude fields"""
         exclude = kwargs.get('exclude',['_'])
-        
         exempted = self.exempt_fields(exclude)
         result: pymongo.cursor.Cursor = self.collection.find({},exempted)
         return list(result)

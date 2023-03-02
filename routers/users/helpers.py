@@ -53,14 +53,15 @@ def create_user_and_get_json_string(userdata:dict)->str:
     create_user(userdata)
     return get_json_string_of_user(userdata['username'])
 
-def connect_to_database_collection_users()->MainDB:
-    db:MainDB = MainDB()
-    db.to_collection('users')
-    return db
-
 def check_existing_username(value:str,db:MainDB)->Any:
     try:
         return db.read({'username':value})
     except TypeError:
         return None
+
+def connect_to_database_collection_users()->MainDB:
+    db:MainDB = MainDB() # Instatiates database connection
+    db.create_collection('users') # Will create new collection if it doesnt exist yet
+    db.to_collection('users') # Then connects to the collection
+    return db
 
