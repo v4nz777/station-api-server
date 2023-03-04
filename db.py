@@ -39,20 +39,27 @@ class MainDB:
     
 
     def read_all(self,**kwargs) -> List[Dict[str, Any]]:
-        """add `exclude=[password,...yourfield]` to exclude fields"""
+        """
+            - To filter by user, add `username='your_username'`
+            - Add `exclude=[password,...yourfield]` to exclude fields
+        """
+        query = {}
+        if kwargs.get('username'):
+            query['username'] = kwargs.get('username')
         exclude = kwargs.get('exclude',['_'])
         exempted = self.exempt_fields(exclude)
-        result: pymongo.cursor.Cursor = self.collection.find({},exempted)
+        result: pymongo.cursor.Cursor = self.collection.find(query,exempted)
         return list(result)
     
 
-    def update(self, query: Dict[str, Any],update: Dict[str, Any]) -> bool:
+    def update(self, query: Dict[str, Any],update: Dict[str, Any]) -> dict:
         # Ensure that update uses valid MongoDB update syntax
+
         if not any(key.startswith('$') for key in update.keys()):
             update = {'$set': update}
         
         self.collection.update_many(query, update)
-        return True
+        return self.read(query)
 
 
     def delete(self, query: Dict[str, Any]) -> int:
