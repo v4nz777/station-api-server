@@ -1,7 +1,10 @@
 from db import MainDB
-from typing import Dict,Any,List
+from typing import Any,List
 import json
 from .schema_users import UserCreationInput
+import datetime
+import utils
+import loggings
 
 
 def get_all_users()->List[dict|Any]:
@@ -58,6 +61,37 @@ def check_existing_username(value:str,db:MainDB)->Any:
         return db.read({'username':value})
     except TypeError:
         return None
+    
+def handle_login(username:str) ->dict:
+    update = {
+        'last_login': datetime.datetime.now(),
+        'status': 'active'
+    }
+    return update_user(username,update)
+
+def handle_logout(username:str) -> dict:
+    update = {
+        'last_logout': datetime.datetime.now(),
+        'status': 'away'
+    }
+    updated_user = update_user(username,update)
+    summary = write_user_logging_activity(updated_user)
+    return summary
+
+def write_user_logging_activity(latest_state: dict)->dict:
+    username = latest_state['username']
+    last_login: datetime.datetime = latest_state['last_login']
+    last_logout: datetime.datetime = latest_state['last_logout']
+
+    return loggings.log_user_logging_activity({
+        'username':username,
+        'login':last_login,
+        'logout':last_logout,
+        'total_shift': utils.get_total_duty(last_login,last_logout),
+        'total_overtime':utils.get_overtime_duty(last_login,last_logout),
+        'total_night_shift':utils.get_night_shift(last_login,last_logout),
+    })
+ 
 
 def connect_to_database_collection_users()->MainDB:
     db:MainDB = MainDB() # Instatiates database connection
