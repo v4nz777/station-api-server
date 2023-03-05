@@ -1,29 +1,29 @@
 from db import MainDB
 from typing import Any,List
 import json
-from .schema_users import UserCreationInput
+from .types import UserCreationInput
 import datetime
 import utils
 import loggings
 
 
-def get_all_users()->List[dict|Any]:
+def get_all_users_from_database()->List[dict|Any]:
     db = connect_to_database_collection_users()
     users = db.read_all()
     return users
 
-def get_user(username:str)->dict|None:
+def get_user_from_database(username:str)->dict|None:
     db = connect_to_database_collection_users()
     return check_existing_username(username,db)
 
-def create_user(userdata:UserCreationInput)->dict:
+def add_user_to_database(userdata:UserCreationInput)->dict:
     db = connect_to_database_collection_users()
     if check_existing_username(userdata.username,db):
         raise ValueError(f"{userdata.username} already existed in database")
     secured_userdata = handle_with_secure_user_creation(userdata.jsonify(),db)
     return db.create(secured_userdata)
 
-def update_user(username:str,update:dict)->dict:
+def update_user_in_database(username:str,update:dict)->dict:
     query = {'username':username}
     db = connect_to_database_collection_users()
     secured_update = handle_with_secure_user_update(query,update,db)
@@ -47,14 +47,6 @@ def handle_with_secure_user_update(query:dict,update:dict,db:MainDB)->dict:
         del update['new_password']
     return update
 
-def get_json_string_of_user(username:str)->str:
-    db = connect_to_database_collection_users()
-    userdetails = check_existing_username(username,db)
-    return json.dumps(userdetails,cls=db.OBjectIDtoStringConverter)
-
-def create_user_and_get_json_string(userdata:dict)->str:
-    create_user(userdata)
-    return get_json_string_of_user(userdata['username'])
 
 def check_existing_username(value:str,db:MainDB)->Any:
     try:
@@ -67,14 +59,14 @@ def handle_login(username:str) ->dict:
         'last_login': datetime.datetime.now(),
         'status': 'active'
     }
-    return update_user(username,update)
+    return update_user_in_database(username,update)
 
 def handle_logout(username:str) -> dict:
     update = {
         'last_logout': datetime.datetime.now(),
         'status': 'away'
     }
-    updated_user = update_user(username,update)
+    updated_user = update_user_in_database(username,update)
     summary = write_user_logging_activity(updated_user)
     return summary
 

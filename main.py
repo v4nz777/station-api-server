@@ -1,21 +1,16 @@
 from fastapi import FastAPI, Response
-from routers.users import users,schema_users
-# from starlette_graphene3
+from routers.users import schema as userschema
+from dotenv import load_dotenv
 import os
 import utils
 import json
-from dotenv import load_dotenv
+
 
 load_dotenv()
 app = FastAPI()
 
-app.include_router(
-    users.router,
-    prefix='/users',
-    tags=['users']
-)
 
-app.add_route("/graphql/users", schema_users.graphql_app)
+app.add_route("/graphql/users", userschema.graphql_app)
 
 @app.get('/')
 async def root()-> Response:
