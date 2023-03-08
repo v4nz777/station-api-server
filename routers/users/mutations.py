@@ -1,9 +1,9 @@
 import json
 import strawberry
 from . import helpers
-from .types import User,UserCreationInput,UserLog
+from .types import User,UserCreationInput,UserLog, AccessToken
 import datetime
-
+import jwt_auth
 
 @strawberry.type
 class Mutation:
@@ -25,6 +25,12 @@ class Mutation:
         updated_user = db.read({'username': username})
         return User(**updated_user)
     
+    @strawberry.mutation
+    def get_access_token(self,info,username:str,password:str)-> AccessToken:
+        if helpers.validate_user(username,password):
+            return AccessToken(username=username,access_token=jwt_auth.encode_jwt_token(username))
+        raise ValueError('Wrong password')
+
     @strawberry.mutation
     def login_user(self, info, username:str)-> User:
         logged_user = helpers.handle_login(username)  

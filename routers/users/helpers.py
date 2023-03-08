@@ -1,10 +1,11 @@
 from db import MainDB
 from typing import Any,List
-import json
+from jose import jwt
 from .types import UserCreationInput
 import datetime
 import utils
 import loggings
+import os
 
 
 def get_all_users_from_database()->List[dict|Any]:
@@ -37,6 +38,7 @@ def handle_with_secure_user_creation(document:dict,db:MainDB)->dict:
 def handle_with_secure_user_update(query:dict,update:dict,db:MainDB)->dict:
     if update.get('new_password') and update.get('password'):
         if db.authenticate_password(query,update.get('password')):
+        # if validate_user(query['username'],update.get('password'))
             update['password'] = db.encode_password(update.get('new_password'))
             del update['new_password']
         else:
@@ -46,6 +48,11 @@ def handle_with_secure_user_update(query:dict,update:dict,db:MainDB)->dict:
     elif not update.get('password') and update.get('new_password'):
         del update['new_password']
     return update
+
+def validate_user(username:str, password:str, db:MainDB=None) -> bool:
+    if db is None:
+        db = connect_to_database_collection_users()
+    return db.authenticate_password({'username':username},password)
 
 
 def check_existing_username(value:str,db:MainDB)->Any:
@@ -84,6 +91,10 @@ def write_user_logging_activity(latest_state: dict)->dict:
         'total_night_shift':utils.get_night_shift(last_login,last_logout),
     })
  
+def generate_jwt(payload:dict,key:str):
+    if not key:
+        key = os.environ['FERNET_KEY']
+    return jwt.encode(payload,key,algorithm='HS256')
 
 def connect_to_database_collection_users()->MainDB:
     db:MainDB = MainDB() # Instatiates database connection

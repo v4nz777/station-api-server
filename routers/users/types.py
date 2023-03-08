@@ -29,6 +29,13 @@ class UserLog:
     total_overtime:List[int]
     total_night_shift:List[int]
 
+
+@strawberry.type
+class AccessToken:
+    username:str
+    access_token:str
+
+
 @strawberry.input
 class UserCreationInput:
     username:str
@@ -55,6 +62,7 @@ class UserCreationInput:
             "last_login": self.last_login,
             "last_logout": self.last_logout,
         }
+
 
 
 
