@@ -1,6 +1,5 @@
 from functools import wraps
 from typing import Callable
-from fastapi import Header, HTTPException
 from jose import jwt
 import os
 import datetime
@@ -23,7 +22,7 @@ def require_token(func: Callable) -> Callable:
             raise ValueError('Invalid or expired token')
  
         # Call the wrapped function with the extracted user information
-        return func(*args, user_info=user_info, **kwargs)
+        return func(*args, info=user_info, **kwargs)
     return wrapper
 
 
