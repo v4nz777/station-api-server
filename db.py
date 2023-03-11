@@ -35,7 +35,7 @@ class MainDB:
         exclude = kwargs.get('exclude',['_'])
         exempted = self.exempt_fields(exclude)
         result: pymongo.cursor.Cursor = self.collection.find_one(query,exempted)
-        return dict(result)
+        return result
     
 
     def read_all(self,**kwargs) -> List[Dict[str, Any]]:

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Response
 from routers.users import schema as userschema
+from routers.ads import schema as adschema
 from dotenv import load_dotenv
 import os
 import utils
@@ -11,6 +12,8 @@ app = FastAPI()
 
 
 app.add_route("/graphql/users", userschema.graphql_app)
+app.add_route("/graphql/ads", adschema.graphql_app)
+
 
 @app.get('/')
 async def root()-> Response:
