@@ -3,6 +3,7 @@ from typing import Any,List
 from jose import jwt
 import datetime
 from .types import AdCreationInput,Advertisement,VersionDetail
+import loggings
 
 def get_all_ads_as_advertisements()->List[Advertisement|Any]:
     _all = []
@@ -38,8 +39,8 @@ def get_ad_from_database(contract:str)->dict|None:
     else:
         raise ValueError('Contract not found!')
 
-def add_ad_to_database(data:AdCreationInput)->dict:
-    data = data.jsonify()
+def add_ad_to_database(input:AdCreationInput)->dict:
+    data= input.jsonify()
     if get_ad_from_database(data.get('contract')): # Check if already exists
         raise ValueError('Contract already in database')
     db = connect_to_database_collection_ads()
@@ -50,13 +51,16 @@ def add_ad_to_database(data:AdCreationInput)->dict:
     data['prev_versions'] = []
     data['details']['stashed'] = None
     data['details']['version'] = 1
-    return db.create(data)
+
+    return  db.create(data)
+
 
 def update_ad_in_database(contract:str,update:dict)->dict:
     db = connect_to_database_collection_ads()
     stashed_version,versions_count = stash_current_version(contract,db)
     update['version'] = versions_count + 1
     return db.update({'contract':contract},{'details':update,'updated':datetime.datetime.now()})
+
 
 def stash_current_version(contract:str,db:MainDB) -> tuple:
     """Returns the `latest details` and `number of total versions`"""
