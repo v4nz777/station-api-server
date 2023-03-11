@@ -66,6 +66,7 @@ def handle_login(username:str) ->dict:
         'last_login': datetime.datetime.now(),
         'status': 'active'
     }
+    loggings.log_user_actions(username=username , action='Logged in')
     return update_user_in_database(username,update)
 
 def handle_logout(username:str) -> dict:
@@ -74,15 +75,16 @@ def handle_logout(username:str) -> dict:
         'status': 'away'
     }
     updated_user = update_user_in_database(username,update)
-    summary = write_user_logging_activity(updated_user)
+    summary = log_user(updated_user)
+    loggings.log_user_actions(username=username , action='Logged out')
     return summary
 
-def write_user_logging_activity(latest_state: dict)->dict:
+def log_user(latest_state: dict)->dict:
     username = latest_state['username']
     last_login: datetime.datetime = latest_state['last_login']
     last_logout: datetime.datetime = latest_state['last_logout']
 
-    return loggings.log_user_logging_activity({
+    return loggings.write_user_log({
         'username':username,
         'login':last_login,
         'logout':last_logout,
