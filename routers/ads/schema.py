@@ -5,5 +5,5 @@ from . import mutations
 from . import queries
 from . import types
 
-schema = strawberry.Schema(query=queries.Query,mutation=mutations.Mutation, types=[types.DateTime])
+schema = strawberry.Schema(query=queries.Query,mutation=mutations.Mutation)
 graphql_app = GraphQL(schema)

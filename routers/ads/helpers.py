@@ -33,11 +33,8 @@ def get_all_ads_from_database()->List[dict|Any]:
 
 def get_ad_from_database(contract:str)->dict|None:
     db = connect_to_database_collection_ads()
-    data =  db.read({'contract':contract})
-    if data:
-        return data
-    else:
-        raise ValueError('Contract not found!')
+    return db.read({'contract':contract})
+
 
 def add_ad_to_database(input:AdCreationInput)->dict:
     data= input.jsonify()
@@ -62,22 +59,51 @@ def update_ad_in_database(contract:str,update:dict)->dict:
     return db.update({'contract':contract},{'details':update,'updated':datetime.datetime.now()})
 
 
-def stash_current_version(contract:str,db:MainDB) -> tuple:
+def stash_current_version(contract:str,db:MainDB|None = None) -> tuple:
     """Returns the `latest details` and `number of total versions`"""
-    current_versions:List[dict] = []
-    # Update the current state
-    subject = db.read({'contract':contract},exclude=['_id']) # get current state
+    if not db:
+        db = connect_to_database_collection_ads()
+
+    # Get the current state of the contract
+    subject = db.read({'contract':contract},exclude=['_id'])
     if not subject:
         raise ValueError('Contract not found!')
-    current_versions = subject['prev_versions'] # Save versions list to new variable
-    del subject['prev_versions'] # This prevents from messing up with the versions
-    subject['stashed'] = datetime.datetime.now()
-    # Add current state to the versions list.
+    
+    # Save current versions to variable, then delete to the subject to prevent messing it up
+    current_versions = subject.get('prev_versions',[])
+    del subject['prev_versions']
+    subject['details']['stashed'] = datetime.datetime.now()
+
+    # Add current state to the versions list but prevents duplicate versions.
     current_versions.append(subject['details'])
-    updated = db.update({'contract':contract},{'prev_versions':current_versions})
+    updated = db.update({'contract':contract},{'prev_versions':get_unique_from_list_of_dicts(current_versions)})
     return updated['details'],len(updated['prev_versions'])
 
+def get_unique_from_list_of_dicts(obj_list:List[dict])->List[dict]:
+    unique_objects = []  # The list of unique objects
+    versions = set()  # The set of version numbers seen so far
 
+    for obj in obj_list:
+        if obj['version'] not in versions:
+            unique_objects.append(obj)
+            versions.add(obj['version'])
+
+    return unique_objects
+
+def use_ad_version(contract:str, use_version:int)-> dict:
+    """Apply the details based on the previous version available"""
+    db = connect_to_database_collection_ads()
+    current_ad = get_ad_from_database(contract=contract)
+
+    if not current_ad:
+        raise ValueError('Contract does not exist')
+    
+    if current_ad['details']['version'] == use_version:
+        raise ValueError('This version is currently in use')
+    
+    selected = [ver for ver in current_ad['prev_versions'] if ver['version'] == use_version][0]
+    stash_current_version(contract, db)
+    return db.update({'contract':contract},{'details':selected,'updated':datetime.datetime.now()})
 
 def connect_to_database_collection_ads()->MainDB:
     db:MainDB = MainDB() # Instatiates database connection

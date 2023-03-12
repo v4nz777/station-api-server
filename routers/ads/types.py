@@ -5,20 +5,19 @@ import datetime
 
 
 
-DateTime = strawberry.scalar(
-    datetime.datetime,
-    serialize=lambda value: value.isoformat(),
-    parse_literal= lambda value: datetime.datetime.fromisoformat(value),
-    parse_value=lambda value: datetime.datetime.fromisoformat(value),
-)
+
+# DateTimeInput = strawberry.scalar(
+#     datetime.datetime,
+#     parse_value=lambda value: datetime.datetime.fromisoformat(value),
+# )
 
 @strawberry.type
 class VersionDetail:
     ex_deal:bool
     pricing:str
     price:float
-    starts:DateTime|None = None
-    ends:DateTime|None = None
+    starts:datetime.datetime|None = None
+    ends:datetime.datetime|None = None
     spot_duration_seconds:int
     spots_per_day:int
     aob_per_day:int|None = None
@@ -30,7 +29,7 @@ class VersionDetail:
     ss_schedule:List[str]|None = None
     account_executive:str|None = None
     version:int
-    stashed:DateTime|None = None
+    stashed:datetime.datetime|None = None
 
 
 @strawberry.type
