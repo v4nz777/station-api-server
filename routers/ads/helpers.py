@@ -51,6 +51,8 @@ def add_ad_to_database(input:AdCreationInput)->dict:
 
     if data.get('materials'):
         data['materials'] = read_files(data.get('materials'))
+    if data.get('display'):
+        data['display'] = read_files(data.get('display'))[0]
 
     return  db.create(data)
 
@@ -61,6 +63,8 @@ def update_ad_in_database(contract:str,update:dict)->dict:
     update['version'] = versions_count + 1
     if update.get('materials'):
         update['materials'] = read_files(update.get('materials'))
+    if update.get('display'):
+        update['display'] = read_files(update.get('display'))[0]
     return db.update({'contract':contract},{'details':update,'updated':datetime.datetime.now()})
 
 

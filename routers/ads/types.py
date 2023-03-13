@@ -25,6 +25,8 @@ class VersionDetail:
     version:int
     stashed:datetime.datetime|None = None
     materials: List[str]|None = None
+    hard_copies: List[str]|None = None
+    display: str|None
     
 
 @strawberry.type
@@ -63,6 +65,7 @@ class AdCreationInput:
     ss_schedule:List[str]|None = None
     account_executive:str|None = None
     materials: List[Upload]|None = None
+    display:List[Upload]|None = None
 
 
     def jsonify(self)->dict:
@@ -88,6 +91,8 @@ class AdCreationInput:
                 'ss_schedule':self.ss_schedule,
                 'account_executive':self.account_executive,
                 'materials': self.materials,
+                'display': self.display,
+
             }
         }
 
