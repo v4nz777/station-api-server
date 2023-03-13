@@ -2,6 +2,7 @@ from db import MainDB
 from typing import Any,List
 from jose import jwt
 from .types import UserCreationInput
+from strawberry.file_uploads import Upload
 import datetime
 import utils
 import loggings
@@ -47,6 +48,9 @@ def handle_with_secure_user_update(query:dict,update:dict,db:MainDB)->dict:
         del update['password']
     elif not update.get('password') and update.get('new_password'):
         del update['new_password']
+    
+    if update.get('display'):
+        update['display'] = read_files(update.get('display'))[0]
     return update
 
 def validate_user(username:str, password:str, db:MainDB=None) -> bool:
@@ -97,6 +101,13 @@ def generate_jwt(payload:dict,key:str):
     if not key:
         key = os.environ['FERNET_KEY']
     return jwt.encode(payload,key,algorithm='HS256')
+
+def read_files(files:List[Upload]) -> List[str]:
+    contents = []
+    for file in files:
+        content = file.read().decode("utf-8")
+        contents.append(content)
+    return contents
 
 def connect_to_database_collection_users()->MainDB:
     db:MainDB = MainDB() # Instatiates database connection
