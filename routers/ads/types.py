@@ -1,15 +1,9 @@
 from typing import List,Any,Optional
+from strawberry.file_uploads import Upload
 import strawberry
 import datetime
 
 
-
-
-
-# DateTimeInput = strawberry.scalar(
-#     datetime.datetime,
-#     parse_value=lambda value: datetime.datetime.fromisoformat(value),
-# )
 
 @strawberry.type
 class VersionDetail:
@@ -30,7 +24,8 @@ class VersionDetail:
     account_executive:str|None = None
     version:int
     stashed:datetime.datetime|None = None
-
+    materials: List[str]|None = None
+    
 
 @strawberry.type
 class Advertisement:
@@ -51,13 +46,12 @@ class AdCreationInput:
     title:str
     contract:str
     bo:str|None = None
-
     type:str = 'local'
     ex_deal:bool = False
     pricing:str = 'fixed'
     price:float|None = None
-    starts:datetime.datetime|None = None
-    ends:datetime.datetime|None = None
+    starts:str|None = None
+    ends:str|None = None
     spot_duration_seconds:int|None = None
     spots_per_day:int|None = None
     aob_per_day:int|None = None
@@ -68,6 +62,7 @@ class AdCreationInput:
     tc_schedule:List[str]|None = None
     ss_schedule:List[str]|None = None
     account_executive:str|None = None
+    materials: List[Upload]|None = None
 
 
     def jsonify(self)->dict:
@@ -80,8 +75,8 @@ class AdCreationInput:
                 'ex_deal':self.ex_deal,
                 'pricing':self.pricing,
                 'price':self.price,
-                'starts':self.starts,
-                'ends':self.ends,
+                'starts':datetime.datetime.fromisoformat(self.starts) if self.starts else None,
+                'ends':datetime.datetime.fromisoformat(self.ends) if self.ends else None,
                 'spot_duration_seconds':self.spot_duration_seconds,
                 'spots_per_day':self.spots_per_day,
                 'aob_per_day':self.aob_per_day,
@@ -92,6 +87,7 @@ class AdCreationInput:
                 'tc_schedule':self.tc_schedule,
                 'ss_schedule':self.ss_schedule,
                 'account_executive':self.account_executive,
+                'materials': self.materials,
             }
         }
 

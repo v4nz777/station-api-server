@@ -3,7 +3,7 @@ from typing import Any,List
 from jose import jwt
 import datetime
 from .types import AdCreationInput,Advertisement,VersionDetail
-import loggings
+from strawberry.file_uploads import Upload
 
 def get_all_ads_as_advertisements()->List[Advertisement|Any]:
     _all = []
@@ -49,6 +49,9 @@ def add_ad_to_database(input:AdCreationInput)->dict:
     data['details']['stashed'] = None
     data['details']['version'] = 1
 
+    if data.get('materials'):
+        data['materials'] = read_files(data.get('materials'))
+
     return  db.create(data)
 
 
@@ -56,6 +59,8 @@ def update_ad_in_database(contract:str,update:dict)->dict:
     db = connect_to_database_collection_ads()
     stashed_version,versions_count = stash_current_version(contract,db)
     update['version'] = versions_count + 1
+    if update.get('materials'):
+        update['materials'] = read_files(update.get('materials'))
     return db.update({'contract':contract},{'details':update,'updated':datetime.datetime.now()})
 
 
@@ -89,6 +94,14 @@ def get_unique_from_list_of_dicts(obj_list:List[dict])->List[dict]:
             versions.add(obj['version'])
 
     return unique_objects
+
+def read_files(files:List[Upload]) -> List[str]:
+    contents = []
+    for file in files:
+        content = file.read().decode("utf-8")
+        contents.append(content)
+    return contents
+
 
 def use_ad_version(contract:str, use_version:int)-> dict:
     """Apply the details based on the previous version available"""

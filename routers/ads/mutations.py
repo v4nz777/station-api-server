@@ -5,6 +5,8 @@ from .types import Advertisement,AdCreationInput, VersionDetail
 import datetime
 from jwt_auth import require_token
 import loggings
+import typing
+from strawberry.file_uploads import Upload
 
 
 @strawberry.type
@@ -22,8 +24,6 @@ class Mutation:
     @require_token
     def update_ad(self,info,author:str,contract:str,stringified_update:str)->Advertisement:
         jsoned_update = json.loads(stringified_update)
-        jsoned_update['starts'] = datetime.datetime.fromisoformat(jsoned_update.get('starts')) if jsoned_update.get('starts') else None
-        jsoned_update['ends'] = datetime.datetime.fromisoformat(jsoned_update.get('ends')) if jsoned_update.get('ends') else None
         updated = helpers.update_ad_in_database(contract,jsoned_update)
         if updated:
             loggings.log_user_actions(author, f'Made some changes to ad contract {contract}')
@@ -36,4 +36,3 @@ class Mutation:
         if updated:
             loggings.log_user_actions(author,f'reverted ad: {contract} to version {use}.')
         return helpers.ad_dict_to_advertisement(updated)
-
