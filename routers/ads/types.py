@@ -3,15 +3,11 @@ from strawberry.file_uploads import Upload
 import strawberry
 import datetime
 
-
-
 @strawberry.type
 class VersionDetail:
-    ex_deal:bool
+    
     pricing:str
     price:float
-    starts:datetime.datetime|None = None
-    ends:datetime.datetime|None = None
     spot_duration_seconds:int
     spots_per_day:int
     aob_per_day:int|None = None
@@ -21,8 +17,12 @@ class VersionDetail:
     aob_schedule:List[str]|None = None
     tc_schedule:List[str]|None = None
     ss_schedule:List[str]|None = None
+    
+    starts:datetime.datetime|None = None
+    ends:datetime.datetime|None = None
     account_executive:str|None = None
     version:int
+    ex_deal:bool
     stashed:datetime.datetime|None = None
     materials: List[str]|None = None
     hard_copies: List[str]|None = None
@@ -40,6 +40,7 @@ class Advertisement:
     created:datetime.datetime|None = None
     updated:datetime.datetime|None = None
     prev_versions:List[VersionDetail]|None = None
+
 
 @strawberry.input
 class AdsDetailsInput:
