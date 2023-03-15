@@ -41,14 +41,8 @@ class Advertisement:
     updated:datetime.datetime|None = None
     prev_versions:List[VersionDetail]|None = None
 
-
-
 @strawberry.input
-class AdCreationInput:
-    title:str
-    contract:str
-    bo:str|None = None
-    type:str = 'local'
+class AdsDetailsInput:
     ex_deal:bool = False
     pricing:str = 'fixed'
     price:float|None = None
@@ -68,6 +62,14 @@ class AdCreationInput:
     display:List[Upload]|None = None
 
 
+@strawberry.input
+class AdCreationInput:
+    title:str
+    contract:str
+    bo:str|None = None
+    type:str = 'local'
+    details:AdsDetailsInput
+
     def jsonify(self)->dict:
         return {
             'title':self.title,
@@ -75,23 +77,23 @@ class AdCreationInput:
             'bo':self.bo,
             'type':self.type,
             'details':{
-                'ex_deal':self.ex_deal,
-                'pricing':self.pricing,
-                'price':self.price,
-                'starts':datetime.datetime.fromisoformat(self.starts) if self.starts else None,
-                'ends':datetime.datetime.fromisoformat(self.ends) if self.ends else None,
-                'spot_duration_seconds':self.spot_duration_seconds,
-                'spots_per_day':self.spots_per_day,
-                'aob_per_day':self.aob_per_day,
-                'tc_per_day':self.tc_per_day,
-                'ss_per_day':self.ss_per_day,
-                'spots_schedule':self.spots_schedule,
-                'aob_schedule':self.aob_schedule,
-                'tc_schedule':self.tc_schedule,
-                'ss_schedule':self.ss_schedule,
-                'account_executive':self.account_executive,
-                'materials': self.materials,
-                'display': self.display,
+                'ex_deal':self.details.ex_deal,
+                'pricing':self.details.pricing,
+                'price':self.details.price,
+                'starts':datetime.datetime.fromisoformat(self.details.starts) if self.details.starts else None,
+                'ends':datetime.datetime.fromisoformat(self.details.ends) if self.details.ends else None,
+                'spot_duration_seconds':self.details.spot_duration_seconds,
+                'spots_per_day':self.details.spots_per_day,
+                'aob_per_day':self.details.aob_per_day,
+                'tc_per_day':self.details.tc_per_day,
+                'ss_per_day':self.details.ss_per_day,
+                'spots_schedule':self.details.spots_schedule,
+                'aob_schedule':self.details.aob_schedule,
+                'tc_schedule':self.details.tc_schedule,
+                'ss_schedule':self.details.ss_schedule,
+                'account_executive':self.details.account_executive,
+                'materials': self.details.materials,
+                'display': self.details.display,
 
             }
         }
