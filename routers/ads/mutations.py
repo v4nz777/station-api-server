@@ -1,7 +1,7 @@
 import json
 import strawberry
 from . import helpers
-from .types import Advertisement,AdCreationInput, VersionDetail
+from .types import Advertisement,AdCreationInput
 import datetime
 from jwt_auth import require_token
 import loggings
