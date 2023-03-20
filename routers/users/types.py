@@ -17,7 +17,7 @@ class User:
     updated:datetime.datetime | None
     last_login:datetime.datetime | None
     last_logout:datetime.datetime | None
-    display:str|None
+    display:str|None = None
 
 
 @strawberry.type
