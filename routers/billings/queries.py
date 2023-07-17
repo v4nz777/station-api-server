@@ -15,6 +15,6 @@ class Query:
     
     @strawberry.field
     @require_token
-    def billing(self, info, invoice_no) -> Billing:
+    def billing(self, info, invoice_no:str) -> Billing:
         billing = helpers.get_billing_from_database(invoice_no)
         return Billing(**billing)
